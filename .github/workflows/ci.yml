@@ -1,21 +1,34 @@
-name: Simple CI Pipeline
+name: CI-CD Pipeline
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  push:
+    branches: [ "main" ]
 
+jobs:
+  ci:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run basic check
+      - name: CI check
         run: |
-          echo "CI pipeline is running"
+          echo "Running CI checks"
           ls
-          cat app.txt
+
+  cd:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy application
+        run: |
+          echo "Deploying application..."
+          echo "Deployment successful"
+

@@ -15,10 +15,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: CI check
-        run: |
-          echo "Running CI checks"
-          ls
+      - name: Run tests
+  run: |
+    echo "Running CI tests"
+    ls
+
+    if [ ! -f app.txt ] && [ ! -f app_pr.txt ]; then
+      echo "Test failed: app file not found"
+      exit 1
+    fi
+
+    if grep -q "DevOps" app.txt 2>/dev/null || grep -q "DevOps" app_pr.txt 2>/dev/null; then
+      echo "Test passed: DevOps text found"
+    else
+      echo "Test failed: DevOps text not found"
+      exit 1
+    fi
+
 
   cd:
     if: github.event_name == 'push'

@@ -1,21 +1,46 @@
-name: Simple CI Pipeline
+name: CI-CD Pipeline
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
+  push:
     branches: [ "main" ]
 
 jobs:
-  build:
+  ci:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run basic check
+      - name: Run CI tests
         run: |
-          echo "CI pipeline is running"
+          echo "Running CI tests"
           ls
-          cat app.txt
+
+          if [ ! -f app.txt ] && [ ! -f app_pr.txt ]; then
+            echo "Test failed: app file not found"
+            exit 1
+          fi
+
+          if grep -q "DevOps" app.txt 2>/dev/null || grep -q "DevOps" app_pr.txt 2>/dev/null; then
+            echo "Test passed: DevOps text found"
+          else
+            echo "Test failed: DevOps text not found"
+            exit 1
+          fi
+
+  cd:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy application
+        run: |
+          echo "Deploying application..."
+          echo "Deployment successful"
+
+
